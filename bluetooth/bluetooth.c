@@ -41,7 +41,7 @@
 #define APP_ADV_FAST_TIMEOUT             10                                       /**< The duration of the fast advertising period (in seconds). */
 #define APP_ADV_SLOW_TIMEOUT             0                                        /**< The duration of the slow advertising period (in seconds). */
 
-#define MIN_CONN_MS 25
+#define MIN_CONN_MS 10
 #define MAX_CONN_MS 50
 #define CONN_TIMEOUT_MS 1000
 
@@ -560,7 +560,7 @@ static void advertising_init(void)
 		bluetooth_addr.addr[1],
 		bluetooth_addr.addr[0],
 	};
-	ble_advdata_manuf_data_t manuf_data = {0x5050, {sizeof(manuf_data_raw), manuf_data_raw}};
+	ble_advdata_manuf_data_t manuf_data = {0x5EE5, {sizeof(manuf_data_raw), manuf_data_raw}};
 	memset(&init, 0, sizeof(init));
 
 	init.srdata.name_type          = BLE_ADVDATA_FULL_NAME;
@@ -737,17 +737,17 @@ void bt_on_uevt_handler(uevt_t* evt)
 			static uint8_t flag = 0;
 			if(m_conn_handle == BLE_CONN_HANDLE_INVALID) {
 				if((flag & 0x7) == 0) {
-					// motor_on();
+					led_on();
 				}
 				if((flag & 0x7) == 1) {
-					motor_off();
+					led_off();
 				}
 			} else {
 				if((flag & 0xF) == 0) {
-					// motor_on();
+					led_on();
 				}
 				if((flag & 0xF) == 7) {
-					motor_off();
+					led_off();
 				}
 			}
 			flag += 1;

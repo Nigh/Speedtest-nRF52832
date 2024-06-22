@@ -87,22 +87,10 @@
 
 // #define RTC_CONFIG_LOG_ENABLED 1
 
-#define SPI_ENABLED 1
-#define SPI0_ENABLED 1
-#define SPI1_ENABLED 1
-#define SPI0_USE_EASY_DMA 0
-#define SPI1_USE_EASY_DMA 0
-
-#define TWI_ENABLED 0
-#define TWI1_ENABLED 0
-#define TWI1_USE_EASY_DMA 0
-
 #define GPIOTE_ENABLED 1
 #define GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS 8
 // #define APP_GPIOTE_ENABLED 1
 #define NRFX_GPIOTE_ENABLED 1
-
-#define BUTTON_ENABLED 1
 
 // TODO:
 // 移除apply_old_config, 清理sdk_config的旧config, 全部使用新的define
