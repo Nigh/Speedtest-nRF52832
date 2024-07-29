@@ -30,7 +30,6 @@ set(SOURCE_FILES
   "bluetooth/service/ble_user_srv.c"
   "module/uevent.c"
   "module/platform.c"
-  "module/timedate.c"
   "module/led_drv.c"
 )
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})
