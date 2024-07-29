@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(project_name LANGUAGES C ASM)
+project(speed-test LANGUAGES C ASM)
 
 set(NRF5_SDK_VERSION "17.0.2")
 set(NRF5_TARGET "nrf52832_xxaa" CACHE STRING "TARGET")

@@ -1,12 +1,13 @@
 
-SDK_PATH_WINDOWS := G:/_business/_nrf_SDK/17.0.2_d674dde
-SDK_PATH_POSIX := /home/xianii/SDK/nRF5_SDK_17.0.2_d674dde
+-include ./make.env
+SDK_PATH_WINDOWS ?= G:/_business/_nrf_SDK/17.0.2_d674dde
+SDK_PATH_POSIX ?= /home/xianii/SDK/nRF5_SDK_17.0.2_d674dde
 
-ARM_GCC_PATH := C:/ARM-GCC
+ARM_GCC_PATH ?= C:/ARM-GCC
 
 SDK_ROOT := $(if $(filter Windows%,$(OS)),$(SDK_PATH_WINDOWS),$(SDK_PATH_POSIX))
 OUTPUT_PATH := build
-OUTPUT_BIN := ./build/project_name
+OUTPUT_BIN ?= ./build/project_name
 
 .PHONY: default format flash flash_softdevice erase
 
