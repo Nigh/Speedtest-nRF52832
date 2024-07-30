@@ -37,13 +37,13 @@
 #define APP_BLE_OBSERVER_PRIO           3                                           /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
 #define APP_ADV_FAST_INTERVAL            MSEC_TO_UNITS(50,UNIT_0_625_MS)         /**< Fast advertising interval (in units of 0.625 ms. This value corresponds to 25 ms.). */
-#define APP_ADV_SLOW_INTERVAL            MSEC_TO_UNITS(150,UNIT_0_625_MS)        /**< Slow advertising interval (in units of 0.625 ms. This value corrsponds to 2 seconds). */
-#define APP_ADV_FAST_TIMEOUT             10                                       /**< The duration of the fast advertising period (in seconds). */
+#define APP_ADV_SLOW_INTERVAL            MSEC_TO_UNITS(120,UNIT_0_625_MS)        /**< Slow advertising interval (in units of 0.625 ms. This value corrsponds to 2 seconds). */
+#define APP_ADV_FAST_TIMEOUT             30                                       /**< The duration of the fast advertising period (in seconds). */
 #define APP_ADV_SLOW_TIMEOUT             0                                        /**< The duration of the slow advertising period (in seconds). */
 
-#define MIN_CONN_MS 10
-#define MAX_CONN_MS 50
-#define CONN_TIMEOUT_MS 1000
+#define MIN_CONN_MS 8
+#define MAX_CONN_MS 30
+#define CONN_TIMEOUT_MS 800
 
 #define MIN_CONN_INTERVAL                MSEC_TO_UNITS(MIN_CONN_MS, UNIT_1_25_MS)         	/**< Minimum connection interval (7.5 ms) */
 #define MAX_CONN_INTERVAL                MSEC_TO_UNITS(MAX_CONN_MS, UNIT_1_25_MS)         	/**< Maximum connection interval (30 ms). */
