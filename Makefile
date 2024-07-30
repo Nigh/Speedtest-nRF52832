@@ -9,7 +9,7 @@ SDK_ROOT := $(if $(filter Windows%,$(OS)),$(SDK_PATH_WINDOWS),$(SDK_PATH_POSIX))
 OUTPUT_PATH := build
 OUTPUT_BIN ?= ./build/project_name
 
-.PHONY: default format flash flash_softdevice erase
+.PHONY: default format flash flash_softdevice flash_all erase
 
 default:
 	@echo CMAKE build
@@ -45,6 +45,10 @@ ifneq (,$(filter Windows%,$(OS)))
 else
 	openocd -f ./script/sd_path_posix.cfg -f ./script/openocd_softdevice.cfg
 endif
+
+flash_all:
+	make flash
+	make flash_softdevice
 
 # Flash the program
 debug:
