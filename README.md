@@ -1,104 +1,57 @@
-# nRF-SDK17-Template
+# nRF-Speedtest
 
-本项目为 `nRF SDK17` 模板工程
+本项目为 `nRF52832` 测速工程
 
 使用 `cmake` 进行编译。  
 支持使用`JLink`和`cmsis-dap`进行下载调试。
 
-## 依赖安装
+## 环境配置
 
-### 0. ARM gcc
+- [工具链](./toolchian.md)
+- [项目配置](./requirement.md)
 
-`choco install gcc-arm-embedded`
+## 使用
 
-或者 https://github.com/xpack-dev-tools/arm-none-eabi-gcc-xpack
+1. 首先，应当开启 `0xA801` 特征Notify的监听。
+2. 然后，向 `0xA802` 特征写入十六进制的 `01AA0300` 即可开启传输测试。
+3. 固件会向 `0xA801` 持续推送约 `512kb` 的数据。其中，每一包数据的前 `4` 个字节为连续的32位序号，可用于确认丢包情况。
 
-### 1. CMake
+## 蓝牙配置
 
-`choco install cmake`
+### 广播
+- 广播间隔: `125ms`
+- 广播包:
+	- Device type: Len=`2`
+	- Name: Len=`N`
+	- Manufacturer data: Len=`12`
 
-### 2. ninja
+其中，`Manufacturer data` 格式为:
+- Company ID: 2 bytes 
+- Project ID: 3 bytes
+- MAC: 6 bytes
 
-`choco install ninja`
+### 连接
+- 连接间隔: `20-50` ms
+- 连接超时: `800` ms
+- slave latency: `2`
+- GAP event length: 最大
+- ATT Data length: `247` bytes
 
-### 3. openOCD
+### 服务
+- Service UUID: `0xA800`
+	- Char UUID: `0xA801`
+		- 属性: `Notify`
+	- Char UUID: `0xA802`
+		- 属性: `Write without response`
 
-https://xpack.github.io/openocd/releases/
+### 实测结果
+本项目使用安卓手机App `nRF Connect` 实测连续传输 512kB 数据，取多次传输耗时的中位数作为结果：
 
-### 4. GNU make
-
-`choco install make`
-
-### 5. nrfjprog
-
-[nRF Command Line Tools - nordicsemi.com](https://www.nordicsemi.com/Products/Development-tools/nrf-command-line-tools)
-
-
-## 项目配置
-
-- 在`CMakeLists`中指定`project_name`为项目名称，`Makefile`中的`OUTPUT_BIN`的名称应当一致。
-- 新建`make.env`文件，在其中指定 `SDK_PATH` 和 `ARM_GCC_PATH`
-
-### 0. cmsis-dap + openOCD + cmake (推荐流程)
-
-需要确保如下组件已经加入了系统的`PATH`中：
-
-1. `make`
-2. `cmake`
-3. `ninja`
-4. `openocd`
-
-```shell
-# 编译
-make
-# 进入编译目录
-cd build
-# 烧录softdevice
-ninja openocd_softdevice
-# 烧录application
-ninja openocd
-```
-
-推荐使用`DRTTView`通过在`daplink`上实现的`RTT`进行调试。
-
-### 1. cmsis-dap + openOCD + make
-
-需要确保如下组件已经加入了系统的`PATH`中：
-
-1. `make`
-2. `cmake`
-3. `ninja`
-4. `openocd`
-
-```shell
-# 编译
-make
-# 擦除
-make flash_erase
-# 烧录softdevice
-make flash_softdevice
-# 烧录application
-make flash
-# gdb server
-make debug
-```
-
-### 2. jlink + nrfjprog+ make
-
-需要确保如下组件已经加入了系统的`PATH`中：
-
-1. `make`
-2. `cmake`
-3. `ninja`
-4. `nrfjprog`
-
-```shell
-# 编译
-make
-# 擦除
-make jlink_erase
-# 烧录softdevice
-make jlink_flash_softdevice
-# 烧录application
-make jlink_flash
-```
+- PHY: 2Mbps
+	- Data length: 512kB
+	- Time elapsed: 3.920s
+	- Speed: 130KB/s
+- PHY: 1Mbps
+	- Data length: 512kB
+	- Time elapsed: 6.881s
+	- Speed: 74KB/s
