@@ -76,12 +76,8 @@ struct ble_user_s {
 	ble_user_data_handler_t          data_handler;       /**< Event handler to be called for handling received data. */
 };
 
-// extern ble_user_t m_user;
 uint32_t ble_user_init(ble_user_t* p_user, ble_user_init_t const* p_user_init);
 void ble_user_on_ble_evt(ble_evt_t const* p_ble_evt, void* p_context);
 uint32_t ble_user_send(ble_user_t* p_user, uint8_t* p_data, uint16_t* p_length, uint16_t conn_handle);
-
-extern uint8_t gatt_hvn_tx_lock_timeout;
-extern bool gatt_hvn_tx_lock;
 
 #endif

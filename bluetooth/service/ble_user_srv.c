@@ -4,8 +4,6 @@
 #include "ble_user_srv.h"
 #include "ble_srv_common.h"
 
-// #include "platform.h"
-
 #define NRF_LOG_MODULE_NAME ble_usrv
 #include "nrf_log.h"
 NRF_LOG_MODULE_REGISTER();
@@ -19,8 +17,6 @@ NRF_LOG_MODULE_REGISTER();
 
 #define USRV_BASE_UUID                  {{0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}} /**< Used vendor specific UUID. */
 
-// ble_user_t m_user;
-uint32_t ble_user_send_from_queue(void);
 
 static void on_connect(ble_user_t* p_user, ble_evt_t const* p_ble_evt)
 {
@@ -147,9 +143,7 @@ static void on_hvx_tx_complete(ble_user_t* p_user, ble_evt_t const* p_ble_evt)
 	}
 }
 
-uint8_t gatt_hvn_tx_lock_timeout = 0;
-bool gatt_hvn_tx_lock = false;
-uint8_t gatt_hvn_tx_queue_length = 0;
+extern void speed_test_on_tx_complete(uint8_t count);
 void ble_user_on_ble_evt(ble_evt_t const* p_ble_evt, void* p_context)
 {
 	if ((p_context == NULL) || (p_ble_evt == NULL)) {
@@ -172,15 +166,7 @@ void ble_user_on_ble_evt(ble_evt_t const* p_ble_evt, void* p_context)
 
 		case BLE_GATTS_EVT_HVN_TX_COMPLETE:
 			on_hvx_tx_complete(p_user, p_ble_evt);
-			// if(gatt_hvn_tx_queue_length > p_ble_evt->evt.gatts_evt.params.hvn_tx_complete.count) {
-			// 	gatt_hvn_tx_queue_length -= p_ble_evt->evt.gatts_evt.params.hvn_tx_complete.count;
-			// } else {
-			// 	gatt_hvn_tx_queue_length = 0;
-			// 	if(ble_user_send_from_queue() == 0) {
-			// 		gatt_hvn_tx_lock = false;
-			// 	}
-			// }
-			// LOG_RAW("BLE_GATTS_EVT_HVN_TX_COMPLETE LENGTH:%d\r\n", gatt_hvn_tx_queue_length);
+			speed_test_on_tx_complete(p_ble_evt->evt.gatts_evt.params.hvn_tx_complete.count);
 			break;
 
 		default:
@@ -249,33 +235,6 @@ uint32_t ble_user_init(ble_user_t* p_user, const ble_user_init_t* p_user_init)
 	return characteristic_add(p_user->service_handle, &add_char_params, &p_user->tx_handles);
 }
 
-ble_user_t* last_p_user;
-
-uint8_t sdp_w = 0;	// 数据池写入指针
-uint8_t send_data_pool[160];	// 修改为固定分配20bytes每个slot
-typedef struct {
-	uint8_t* p_string;
-	uint16_t length;
-} sDATAQUEUE;
-
-uint8_t pDQ_w = 0;
-sDATAQUEUE sDataQueue[4] = {{NULL, 0}};
-
-uint32_t ble_user_send_queue(uint8_t* p_string, uint16_t length)
-{
-	if(pDQ_w >= 4) {
-		LOG_RAW("USER_QUEUE_OVERFLOW!!!----------!!!\r\n");
-		return -1;
-	}
-
-	memcpy(send_data_pool + sdp_w, p_string, length);
-	sDataQueue[pDQ_w].p_string = send_data_pool + sdp_w;
-	sDataQueue[pDQ_w].length = length;
-	sdp_w = pDQ_w * 20;
-	pDQ_w += 1;
-	LOG_RAW("USER_QUEUE_LEN:%d\r\n", pDQ_w);
-	return 0;
-}
 
 uint32_t ble_user_send(ble_user_t* p_user, uint8_t* p_string, uint16_t* p_length, uint16_t conn_handle)
 {
@@ -311,4 +270,3 @@ uint32_t ble_user_send(ble_user_t* p_user, uint8_t* p_string, uint16_t* p_length
 
 	return err_code;
 }
-
