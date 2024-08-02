@@ -31,7 +31,6 @@ void log_on_uevt_handler(uevt_t* evt)
 			sec += 1;
 			break;
 		case UEVT_RTC_8HZ:
-
 			break;
 	}
 }
@@ -46,7 +45,6 @@ void shutdown_now(void)
 
 void main_handler(uevt_t* evt)
 {
-	static uint16_t days;
 	switch(evt->evt_id) {
 		case UEVT_RTC_1HZ:
 			break;

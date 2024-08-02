@@ -30,7 +30,7 @@
 
 #include "build.h"
 
-#define APP_BLE_CONN_CFG_TAG            2                                           /**< A tag identifying the SoftDevice BLE configuration. */
+#define APP_BLE_CONN_CFG_TAG            1                                           /**< A tag identifying the SoftDevice BLE configuration. */
 
 #define USER_SERVICE_UUID_TYPE           BLE_UUID_TYPE_VENDOR_BEGIN                  /**< UUID type for the Nordic UART Service (vendor specific). */
 
@@ -41,8 +41,8 @@
 #define APP_ADV_FAST_TIMEOUT             30                                       /**< The duration of the fast advertising period (in seconds). */
 #define APP_ADV_SLOW_TIMEOUT             0                                        /**< The duration of the slow advertising period (in seconds). */
 
-#define MIN_CONN_MS 8
-#define MAX_CONN_MS 30
+#define MIN_CONN_MS 20
+#define MAX_CONN_MS 50
 #define CONN_TIMEOUT_MS 800
 
 #define MIN_CONN_INTERVAL                MSEC_TO_UNITS(MIN_CONN_MS, UNIT_1_25_MS)         	/**< Minimum connection interval (7.5 ms) */
@@ -77,22 +77,9 @@ BLE_USER_DEF(m_user, NRF_SDH_BLE_TOTAL_LINK_COUNT);
 NRF_BLE_GATT_DEF(m_gatt);                                                           /**< GATT module instance. */
 BLE_ADVERTISING_DEF(m_advertising);                                                 /**< Advertising module instance. */
 
-
-static ble_uuid_t const m_user_uuid = {
-	.uuid = BLE_UUID_USRV_SERVICE,
-	.type = BLE_UUID_TYPE_BLE
-};
-
 static uint8_t m_gap_role     = BLE_GAP_ROLE_INVALID;       /**< BLE role for this connection, see @ref BLE_GAP_ROLES */
 static uint16_t m_conn_handle          = BLE_CONN_HANDLE_INVALID;                 /**< Handle of the current connection. */
 static uint16_t m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;            /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
-static ble_uuid_t m_adv_uuids[]          =                                          /**< Universally unique service identifier. */
-{
-	{BLE_UUID_USRV_SERVICE, USER_SERVICE_UUID_TYPE}
-};
-
-static void scan_start(void);
-static void scan_stop(void);
 
 /**@brief Function for assert macro callback.
  *
@@ -277,76 +264,12 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 			break;
 	}
 }
-// static void ble_central_user_evt_handler(ble_central_user_t* p_ble_user, ble_central_user_evt_t const* p_ble_user_evt)
-// {
-// 	ret_code_t err_code;
-
-// 	switch (p_ble_user_evt->evt_type) {
-// 		case BLE_USER_EVT_DISCOVERY_COMPLETE:
-// 			NRF_LOG_INFO("Discovery complete.");
-// 			err_code = ble_user_handles_assign(p_ble_user, p_ble_user_evt->conn_handle, &p_ble_user_evt->handles);
-// 			APP_ERROR_CHECK(err_code);
-
-// 			err_code = ble_user_tx_notif_enable(p_ble_user);
-// 			APP_ERROR_CHECK(err_code);
-// 			NRF_LOG_INFO("Connected to Corumi device.");
-// 			break;
-
-// 		case BLE_USER_EVT_TX_EVT:
-// 			// ble_user_data_handler(p_ble_user, p_ble_user_evt->p_data, p_ble_user_evt->data_len);
-// 			break;
-
-// 		case BLE_USER_EVT_DISCONNECTED:
-// 			NRF_LOG_INFO("Disconnected.");
-// 			scan_start();
-// 			break;
-// 	}
-// }
-
 bool is_valid_device(const ble_gap_evt_adv_report_t* p_adv_report)
 {
 	// uint8_t i,j,p = 0;
 	if(p_adv_report->rssi < -88) {
 		return false;
 	}
-
-	// if(p_adv_report->peer_addr.addr[5] == 0xF1
-	//         && p_adv_report->peer_addr.addr[4] == 0x0C
-	//         && p_adv_report->peer_addr.addr[3] == 0x26
-	//         && p_adv_report->peer_addr.addr[2] == 0xEC
-	//         && p_adv_report->peer_addr.addr[1] == 0xF8
-	//         && p_adv_report->peer_addr.addr[0] == 0xF7) {
-	// 	NRF_LOG_RAW_INFO(" -> Found It!\n");
-	// 	return true;
-	// }
-	// NRF_LOG_RAW_INFO("-->find_device:%02X:%02X:%02X:%02X:%02X:%02X",
-	// 	p_adv_report->peer_addr.addr[0],
-	// 	p_adv_report->peer_addr.addr[1],
-	// 	p_adv_report->peer_addr.addr[2],
-	// 	p_adv_report->peer_addr.addr[3],
-	// 	p_adv_report->peer_addr.addr[4],
-	// 	p_adv_report->peer_addr.addr[5]
-	// );
-	// NRF_LOG_RAW_INFO(" - rssi:%ddBm\n",
-	//     p_adv_report->rssi
-	// );
-	// while(p<p_adv_report->data.len && p_adv_report->data.p_data[p+1]!=0xFF){
-	//     p += p_adv_report->data.p_data[p+0]+1;
-	// }
-	// if(p>=p_adv_report->data.len){
-	//     return false;
-	// }else{
-	//     if(p_adv_report->data.p_data[p+2]==0x50
-	//         && p_adv_report->data.p_data[p+3]==0x50
-	//         && p_adv_report->data.p_data[p+4]==0xDE
-	//         && p_adv_report->data.p_data[p+5]==0xAD
-	//         && p_adv_report->data.p_data[p+6]==0xBE
-	//         && p_adv_report->data.p_data[p+7]==0xEF
-	//         && p_adv_report->data.p_data[p+8]==0x00
-	//         && p_adv_report->data.p_data[p+9]==0x01){
-	//         return true;
-	//     }
-	// }
 	return false;
 }
 
@@ -361,33 +284,6 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
 	ble_gap_evt_t const* p_gap_evt = &p_ble_evt->evt.gap_evt;
 
 	switch (p_ble_evt->header.evt_id) {
-		case BLE_GAP_EVT_ADV_REPORT: {
-			const ble_gap_evt_adv_report_t* p_adv_report = &p_gap_evt->params.adv_report;
-			// For readability.
-			nrf_ble_scan_t*               p_scan_ctx  = &m_scan;
-			ble_gap_addr_t const*         p_addr        = &p_adv_report->peer_addr;
-			ble_gap_scan_params_t const* p_scan_params = &p_scan_ctx->scan_params;
-			ble_gap_conn_params_t const* p_conn_params = &p_scan_ctx->conn_params;
-			uint8_t                       con_cfg_tag   = p_scan_ctx->conn_cfg_tag;
-
-			if(is_valid_device(p_adv_report) == true) {
-				NRF_LOG_RAW_INFO("Scan stop\n");
-				nrf_ble_scan_stop();
-				// Establish connection.
-				NRF_LOG_RAW_INFO("Start connect\n");
-				err_code = sd_ble_gap_connect(p_addr,
-				                              p_scan_params,
-				                              p_conn_params,
-				                              con_cfg_tag);
-				NRF_LOG_RAW_INFO("Connecting\n");
-				if (err_code != NRF_SUCCESS) {
-					NRF_LOG_RAW_INFO("Err:[%d]\n", err_code);
-					sd_ble_gap_connect_cancel();
-					scan_start();
-				}
-			}
-		}
-		break; // BLE_GAP_EVT_ADV_REPORT
 		case BLE_GAP_EVT_CONNECTED: {
 			m_gap_role    = p_gap_evt->params.connected.role;
 			if (m_gap_role == BLE_GAP_ROLE_PERIPH) {
@@ -403,10 +299,6 @@ static void ble_evt_handler(ble_evt_t const* p_ble_evt, void* p_context)
 			// LED indication will be changed when advertising starts.
 			m_conn_handle = BLE_CONN_HANDLE_INVALID;
 			uevt_bc_e(UEVT_BT_DISCONN);
-			if (m_gap_role == BLE_GAP_ROLE_CENTRAL) {
-				// 如果是主机模式则自动
-				scan_start();
-			}
 			break;
 
 		case BLE_GAP_EVT_PHY_UPDATE_REQUEST: {
@@ -496,17 +388,6 @@ static void ble_stack_init(void)
 	err_code = nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start);
 	APP_ERROR_CHECK(err_code);
 
-	// // Overwrite some of the default configurations for the BLE stack.
-	// ble_cfg_t ble_cfg;
-
-	// // MTU & DLE
-	// memset(&ble_cfg, 0x00, sizeof(ble_cfg));
-	// ble_cfg.conn_cfg.conn_cfg_tag                     = APP_BLE_CONN_CFG_TAG;
-	// ble_cfg.conn_cfg.params.gap_conn_cfg.event_length = 10;
-	// ble_cfg.conn_cfg.params.gap_conn_cfg.conn_count   = BLE_GAP_CONN_COUNT_DEFAULT;
-	// err_code = sd_ble_cfg_set(BLE_CONN_CFG_GAP, &ble_cfg, ram_start);
-	// APP_ERROR_CHECK(err_code);
-
 	// Enable BLE stack.
 	err_code = nrf_sdh_ble_enable(&ram_start);
 	APP_ERROR_CHECK(err_code);
@@ -586,74 +467,6 @@ static void advertising_init(void)
 	ble_advertising_conn_cfg_tag_set(&m_advertising, APP_BLE_CONN_CFG_TAG);
 }
 
-static void scan_evt_handler(scan_evt_t const* p_scan_evt)
-{
-	ret_code_t err_code;
-
-	switch(p_scan_evt->scan_evt_id) {
-		case NRF_BLE_SCAN_EVT_CONNECTING_ERROR: {
-			err_code = p_scan_evt->params.connecting_err.err_code;
-			APP_ERROR_CHECK(err_code);
-		}
-		break;
-
-		case NRF_BLE_SCAN_EVT_CONNECTED: {
-			ble_gap_evt_connected_t const* p_connected =
-			    p_scan_evt->params.connected.p_connected;
-			// Scan is automatically stopped by the connection.
-			NRF_LOG_RAW_INFO("Connecting to target %02x:%02x:%02x:%02x:%02x:%02x\n",
-			                 p_connected->peer_addr.addr[0],
-			                 p_connected->peer_addr.addr[1],
-			                 p_connected->peer_addr.addr[2],
-			                 p_connected->peer_addr.addr[3],
-			                 p_connected->peer_addr.addr[4],
-			                 p_connected->peer_addr.addr[5]
-			                );
-		}
-		break;
-
-		case NRF_BLE_SCAN_EVT_SCAN_TIMEOUT: {
-			NRF_LOG_RAW_INFO("Scan timed out.\n");
-			scan_start();
-		}
-		break;
-
-		default:
-			break;
-	}
-}
-
-static void scan_init(void)
-{
-	ret_code_t          err_code;
-	nrf_ble_scan_init_t init_scan;
-
-	memset(&init_scan, 0, sizeof(init_scan));
-
-	// init_scan.connect_if_match = true;
-	init_scan.conn_cfg_tag     = APP_BLE_CONN_CFG_TAG;
-
-	err_code = nrf_ble_scan_init(&m_scan, &init_scan, scan_evt_handler);
-	APP_ERROR_CHECK(err_code);
-
-	// err_code = nrf_ble_scan_filter_set(&m_scan, SCAN_NAME_FILTER, scan_name);
-	// APP_ERROR_CHECK(err_code);
-
-	// err_code = nrf_ble_scan_filters_enable(&m_scan, NRF_BLE_SCAN_NAME_FILTER, false);
-	// APP_ERROR_CHECK(err_code);
-}
-
-static void scan_start(void)
-{
-	ret_code_t ret;
-	ret = nrf_ble_scan_start(&m_scan);
-	APP_ERROR_CHECK(ret);
-}
-static void scan_stop(void)
-{
-	nrf_ble_scan_stop();
-}
-
 /**@brief Function for starting advertising.
  */
 void ble_adv_start(void)
@@ -672,19 +485,92 @@ void ble_adv_stop(void)
 	}
 }
 
+void conn_evt_len_ext_set(bool status)
+{
+	ret_code_t err_code;
+	ble_opt_t  opt;
+
+	memset(&opt, 0x00, sizeof(opt));
+	opt.common_opt.conn_evt_ext.enable = status ? 1 : 0;
+
+	err_code = sd_ble_opt_set(BLE_COMMON_OPT_CONN_EVT_EXT, &opt);
+	APP_ERROR_CHECK(err_code);
+}
+
 void bluetooth_init(void)
 {
 	user_event_handler_regist(bt_on_uevt_handler);
 	timers_init();
-	// db_discovery_init();	// central
 	ble_stack_init();
 	gap_params_init();
 	gatt_init();
 	services_init();
-	// scan_init();	// central
 	advertising_init();
 	conn_params_init();
+	conn_evt_len_ext_set(true);
 	uevt_bc_e(UEVT_BT_INIT);
+}
+
+
+uint32_t speed_test_tick = 0;
+uint16_t speed_test_depth = 244;
+uint32_t speed_test_buffer[8][61];
+uint8_t speed_test_buffer_p = 0;
+uint32_t speed_test_package = 0;
+uint32_t speed_test_data = 0;
+
+static void speed_test_data_fill(void)
+{
+	speed_test_buffer[speed_test_buffer_p][0] = speed_test_package++;
+	for (uint8_t i = 1; i < 61; i++) {
+		speed_test_buffer[speed_test_buffer_p][i] = speed_test_data++;
+	}
+}
+void speed_test_package_init(void)
+{
+	speed_test_package = 0;
+	speed_test_data = 0;
+	speed_test_data_fill();
+	speed_test_tick = app_timer_cnt_get();
+	LOG_RAW("Speed test start at %ld\n", speed_test_tick);
+}
+#include "nrf_error.h"
+#define TEST_PACKAGE_MAX 2099l
+void speed_test_package_send_next(void)
+{
+	while(1) {
+		if(speed_test_package >= TEST_PACKAGE_MAX) {
+			if(speed_test_tick > 0) {
+				uint32_t timeElapsed = app_timer_cnt_diff_compute(app_timer_cnt_get(), speed_test_tick);
+				LOG_RAW("Speed test end\n");
+				uint32_t sec = timeElapsed / 32768;
+				uint32_t ms = ((timeElapsed & 32767) * 1000) >> 15;
+				LOG_RAW("Time elapsed: %d.%03ds\n", sec, ms);
+				LOG_RAW("Bytes sent: %d\n", TEST_PACKAGE_MAX * 61 * 4);
+				LOG_RAW("Transmit speed: %dKB/s\n", TEST_PACKAGE_MAX * 61 * 4 / (sec * 1000 + ms));
+				speed_test_tick = 0;
+			}
+			return;
+		}
+		uint32_t err_code = ble_user_send(&m_user, (uint8_t*)speed_test_buffer[speed_test_buffer_p], &speed_test_depth, m_conn_handle);;
+		if (err_code != NRF_SUCCESS &&
+		        err_code != BLE_ERROR_INVALID_CONN_HANDLE &&
+		        err_code != NRF_ERROR_INVALID_STATE &&
+		        err_code != NRF_ERROR_RESOURCES) {
+			APP_ERROR_CHECK(err_code);
+		}
+		if (err_code == NRF_SUCCESS) {
+			speed_test_buffer_p = (speed_test_buffer_p + 1) & 0x7;
+			speed_test_data_fill();
+		} else {
+			break;
+		}
+	}
+}
+
+void speed_test_on_tx_complete(uint8_t count)
+{
+	speed_test_package_send_next();
 }
 
 void bt_on_uevt_handler(uevt_t* evt)
@@ -727,12 +613,6 @@ void bt_on_uevt_handler(uevt_t* evt)
 		}
 		break;
 
-		case UEVT_BT_CTL_SCAN_ON:
-			scan_start();
-			break;
-		case UEVT_BT_CTL_SCAN_OFF:
-			scan_stop();
-			break;
 		case UEVT_RTC_8HZ: {
 			static uint8_t flag = 0;
 			if(m_conn_handle == BLE_CONN_HANDLE_INVALID) {
