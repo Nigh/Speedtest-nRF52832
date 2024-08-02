@@ -56,8 +56,18 @@ uint8_t gflowcontrol = 0;
 		LOG_HEX_RAW(ble_send_public_stack, ble_send_public_stack_depth);\
 	}while(0)
 
+#include "app_timer.h"
+extern void speed_test_package_init(void);
+extern void speed_test_package_send_next(void);
 void bt_air_interface(uint8_t* a, uint16_t* length)
 {
+	if(*length >= 4) {
+		if(a[0] == 0x01 && a[1] == 0xAA && a[2] == 0x03 && a[3] == 0x00) {
+			// speed test routine start
+			speed_test_package_init();
+			speed_test_package_send_next();
+		}
+	}
 }
 
 void bt_air_handler(uevt_t* evt)

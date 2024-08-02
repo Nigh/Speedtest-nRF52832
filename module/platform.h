@@ -36,6 +36,8 @@ void platform_powerdown(bool flag);
 
 void random_refresh(void);
 uint32_t platform_get_systick(void);
+void led_on(void);
+void led_off(void);
 
 #define UEVT_RTC_BASE (0x0000)
 #define UEVT_RTC_8HZ (0x0001)

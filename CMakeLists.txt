@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(project_name LANGUAGES C ASM)
+project(speed-test LANGUAGES C ASM)
 
 set(NRF5_SDK_VERSION "17.0.2")
 set(NRF5_TARGET "nrf52832_xxaa" CACHE STRING "TARGET")
@@ -30,7 +30,6 @@ set(SOURCE_FILES
   "bluetooth/service/ble_user_srv.c"
   "module/uevent.c"
   "module/platform.c"
-  "module/timedate.c"
   "module/led_drv.c"
 )
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_FILES})

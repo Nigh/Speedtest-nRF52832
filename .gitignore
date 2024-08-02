@@ -13,3 +13,5 @@ Output/
 *.emSession
 *.jlink
 *.BROWSE.*
+
+make.env
